@@ -4,14 +4,26 @@ void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  bool isDarkMode = false;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
           colorSchemeSeed: const Color(0xff6750a4), useMaterial3: true),
+      darkTheme: ThemeData(
+          colorSchemeSeed: const Color(0xff6750a4),
+          useMaterial3: true,
+          brightness: Brightness.dark),
+      themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
       home: const Synapse(),
     );
   }
@@ -47,24 +59,24 @@ class _SynapseState extends State<Synapse> {
               });
             },
             labelType: labelType,
-            leading: showLeading ? const Text('Leading') : null,
-            trailing: showTrailing ? const Text('Trailing') : null,
+            leading: null,
+            trailing: null,
             groupAlignment: groupAligment,
             destinations: const [
               NavigationRailDestination(
-                icon: Icon(Icons.favorite_border),
-                selectedIcon: Icon(Icons.favorite),
-                label: Text('First'),
+                icon: Icon(Icons.description_outlined),
+                selectedIcon: Icon(Icons.description),
+                label: Text('Resumes'),
               ),
               NavigationRailDestination(
-                icon: Icon(Icons.bookmark_border),
-                selectedIcon: Icon(Icons.book),
-                label: Text('Second'),
+                icon: Icon(Icons.list),
+                selectedIcon: Icon(Icons.list),
+                label: Text('Applications'),
               ),
               NavigationRailDestination(
-                icon: Icon(Icons.star_border),
-                selectedIcon: Icon(Icons.star),
-                label: Text('Third'),
+                icon: Icon(Icons.insights_outlined),
+                selectedIcon: Icon(Icons.insights),
+                label: Text('Insights'),
               ),
             ],
           ),
