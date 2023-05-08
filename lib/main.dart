@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:synapse/sections.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -24,19 +26,19 @@ class _MyAppState extends State<MyApp> {
           useMaterial3: true,
           brightness: Brightness.dark),
       themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
-      home: const Synapse(),
+      home: const HomePage(),
     );
   }
 }
 
-class Synapse extends StatefulWidget {
-  const Synapse({super.key});
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
   @override
-  State<Synapse> createState() => _SynapseState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _SynapseState extends State<Synapse> {
+class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   NavigationRailLabelType labelType = NavigationRailLabelType.all;
   bool showLeading = false;
@@ -82,8 +84,13 @@ class _SynapseState extends State<Synapse> {
           ),
           const VerticalDivider(thickness: 1, width: 1),
           Expanded(
-            child: Center(
-              child: Text('selectedIndex: $_selectedIndex'),
+            child: IndexedStack(
+              index: _selectedIndex,
+              children: const [
+                ResumesSection(),
+                ApplicationsSection(),
+                InsightsSection(),
+              ],
             ),
           )
         ],
