@@ -66,14 +66,14 @@ class _HomePageState extends State<HomePage> {
             groupAlignment: groupAligment,
             destinations: const [
               NavigationRailDestination(
-                icon: Icon(Icons.description_outlined),
-                selectedIcon: Icon(Icons.description),
-                label: Text('Resumes'),
-              ),
-              NavigationRailDestination(
                 icon: Icon(Icons.list),
                 selectedIcon: Icon(Icons.list),
                 label: Text('Applications'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.description_outlined),
+                selectedIcon: Icon(Icons.description),
+                label: Text('Resumes'),
               ),
               NavigationRailDestination(
                 icon: Icon(Icons.insights_outlined),
@@ -87,8 +87,8 @@ class _HomePageState extends State<HomePage> {
             child: IndexedStack(
               index: _selectedIndex,
               children: const [
-                ResumesSection(),
                 ApplicationsSection(),
+                ResumesSection(),
                 InsightsSection(),
               ],
             ),

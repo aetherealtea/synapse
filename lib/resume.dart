@@ -27,7 +27,21 @@ class Resume {
         resumeName = resumeName.isEmpty ? 'New resume' : resumeName;
 
   factory Resume.fromJson(Map<String, dynamic> json) {
-    return Resume(resumeId: json['id'], resumeName: json['name'])
+    final List<Work> work =
+        (json['work'] as List).map((e) => Work.fromJson(e)).toList();
+    final List<Education> education =
+        (json['education'] as List).map((e) => Education.fromJson(e)).toList();
+    final List<Skill> skills =
+        (json['skills'] as List).map((e) => Skill.fromJson(e)).toList();
+    final List<Language> languages =
+        (json['languages'] as List).map((e) => Language.fromJson(e)).toList();
+    final List<Interest> interests =
+        (json['interests'] as List).map((e) => Interest.fromJson(e)).toList();
+    final List<Reference> references =
+        (json['references'] as List).map((e) => Reference.fromJson(e)).toList();
+
+    return Resume(
+        resumeId: json['meta']['id'], resumeName: json['meta']['name'])
       ..name = json['basics']['name']
       ..label = json['basics']['label']
       ..picture = json['basics']['picture']
@@ -36,12 +50,12 @@ class Resume {
       ..website = json['basics']['url']
       ..summary = json['basics']['summary']
       ..location = json['basics']['location']
-      ..work = json['work']
-      ..education = json['education']
-      ..skills = json['skills']
-      ..languages = json['languages']
-      ..interests = json['interests']
-      ..references = json['references'];
+      ..work = work
+      ..education = education
+      ..skills = skills
+      ..languages = languages
+      ..interests = interests
+      ..references = references;
   }
 
   Map<String, dynamic> toJson() => {
@@ -78,12 +92,15 @@ class Work {
   Work(this.company, this.position);
 
   factory Work.fromJson(Map<String, dynamic> json) {
+    final List<String> highlights =
+        (json['highlights'] as List).map((e) => e.toString()).toList();
+
     return Work(json['company'], json['position'])
       ..website = json['website']
       ..startDate = json['startDate']
       ..endDate = json['endDate']
       ..summary = json['summary']
-      ..highlights = json['highlights'];
+      ..highlights = highlights;
   }
 
   Map<String, dynamic> toJson() => {
@@ -109,11 +126,14 @@ class Education {
   Education(this.institution, this.area, this.studyType);
 
   factory Education.fromJson(Map<String, dynamic> json) {
+    final List<String> courses =
+        (json['courses'] as List).map((e) => e.toString()).toList();
+
     return Education(json['institution'], json['area'], json['studyType'])
       ..startDate = json['startDate']
       ..endDate = json['endDate']
       ..gpa = json['gpa']
-      ..courses = json['courses'];
+      ..courses = courses;
   }
 
   Map<String, dynamic> toJson() => {
@@ -135,9 +155,12 @@ class Skill {
   Skill(this.name);
 
   factory Skill.fromJson(Map<String, dynamic> json) {
+    List<String> keywords =
+        (json['keywords'] as List).map((e) => e.toString()).toList();
+
     return Skill(json['name'])
       ..level = json['level']
-      ..keywords = json['keywords'];
+      ..keywords = keywords;
   }
 
   Map<String, dynamic> toJson() =>
@@ -164,7 +187,10 @@ class Interest {
   Interest(this.name);
 
   factory Interest.fromJson(Map<String, dynamic> json) {
-    return Interest(json['name'])..keywords = json['keywords'];
+    List<String> keywords =
+        (json['keywords'] as List).map((e) => e.toString()).toList();
+
+    return Interest(json['name'])..keywords = keywords;
   }
 
   Map<String, dynamic> toJson() => {'name': name, 'keywords': keywords};

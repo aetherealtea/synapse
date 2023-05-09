@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:synapse/resume.dart' as resume;
+import 'package:synapse/resume.dart';
+
+import 'dart:convert';
+import 'dart:io';
 
 class ResumesSection extends StatefulWidget {
   const ResumesSection({Key? key}) : super(key: key);
@@ -9,18 +12,32 @@ class ResumesSection extends StatefulWidget {
 }
 
 class _ResumesSectionState extends State<ResumesSection> {
-  List<resume.Resume> resumes = [];
+  List<Resume> resumes = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadResumes();
+  }
+
+  void _loadResumes() async {
+    final file = File('data/resumes.json');
+    final json = jsonDecode(await file.readAsString());
+    setState(() {
+      resumes = json.map<Resume>((e) => Resume.fromJson(e)).toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
         child: ListView.builder(
-      itemCount: 10,
+      itemCount: resumes.length,
       itemBuilder: (BuildContext context, int index) {
         return Card(
           child: ListTile(
-            title: Text('Resume $index'),
-            subtitle: Text('Resume $index'),
+            title: Text(resumes[index].resumeName),
+            subtitle: Text(resumes[index].resumeId),
             trailing: Icon(Icons.more_vert),
           ),
         );
