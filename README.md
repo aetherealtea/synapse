@@ -1,16 +1,12 @@
 # synapse
 
-A new Flutter project.
+AI-enhanced tool to expedite the job application process
 
-## Getting Started
+## ToDo
+ - [ ] Fix the courses section for EducationEditor
+ - [ ] Design classes for common comples fields in editors (draggable list with/without separate editor, etc.)
+ - [ ] Design a parent class for all editors
+ - [ ] Complete resume editor
+ - [ ] Reorganize the top menu of Resume section
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+ - [ ] Repeat with Applications section
