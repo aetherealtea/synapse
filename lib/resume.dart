@@ -14,7 +14,7 @@ class Resume {
   String picture = '';
   String email = '';
   String phone = '';
-  String website = '';
+  String url = '';
   String summary = '';
   String location = '';
   List<Profile> profiles = [];
@@ -26,12 +26,16 @@ class Resume {
   List<Language> languages = [];
   List<Interest> interests = [];
   List<Reference> references = [];
+  List<Publication> publications = [];
+  List<Project> projects = [];
 
   Resume({String? resumeId, String resumeName = ''})
       : resumeId = resumeId ?? const Uuid().v4(),
         resumeName = resumeName.isEmpty ? 'New resume' : resumeName;
 
   factory Resume.fromJson(Map<String, dynamic> json) {
+    // If field not found, skip it
+
     final List<Profile> profiles = (json['basics']['profiles'] as List)
         .map((e) => Profile.fromJson(e))
         .toList();
@@ -51,6 +55,11 @@ class Resume {
         (json['interests'] as List).map((e) => Interest.fromJson(e)).toList();
     final List<Reference> references =
         (json['references'] as List).map((e) => Reference.fromJson(e)).toList();
+    final List<Publication> publications = (json['publications'] as List)
+        .map((e) => Publication.fromJson(e))
+        .toList();
+    final List<Project> projects =
+        (json['projects'] as List).map((e) => Project.fromJson(e)).toList();
 
     return Resume(
         resumeId: json['meta']['id'], resumeName: json['meta']['name'])
@@ -59,7 +68,7 @@ class Resume {
       ..picture = json['basics']['picture']
       ..email = json['basics']['email']
       ..phone = json['basics']['phone']
-      ..website = json['basics']['url']
+      ..url = json['basics']['url']
       ..summary = json['basics']['summary']
       ..location = json['basics']['location']
       ..profiles = profiles
@@ -70,7 +79,9 @@ class Resume {
       ..skills = skills
       ..languages = languages
       ..interests = interests
-      ..references = references;
+      ..references = references
+      ..publications = publications
+      ..projects = projects;
   }
 
   Map<String, dynamic> toJson() => {
@@ -82,7 +93,7 @@ class Resume {
           'picture': picture,
           'email': email,
           'phone': phone,
-          'website': website,
+          'url': url,
           'summary': summary,
           'location': location
         },
@@ -91,7 +102,9 @@ class Resume {
         'skills': skills,
         'languages': languages,
         'interests': interests,
-        'references': references
+        'references': references,
+        'publications': publications,
+        'projects': projects
       };
 }
 
@@ -111,22 +124,22 @@ class Profile {
 }
 
 class Work {
-  String company;
+  String name;
   String position;
-  String website = '';
+  String url = '';
   String startDate = '';
   String endDate = '';
   String summary = '';
   List<String> highlights = [];
 
-  Work(this.company, this.position);
+  Work(this.name, this.position);
 
   factory Work.fromJson(Map<String, dynamic> json) {
     final List<String> highlights =
         (json['highlights'] as List).map((e) => e.toString()).toList();
 
-    return Work(json['company'], json['position'])
-      ..website = json['website']
+    return Work(json['name'], json['position'])
+      ..url = json['url']
       ..startDate = json['startDate']
       ..endDate = json['endDate']
       ..summary = json['summary']
@@ -134,9 +147,9 @@ class Work {
   }
 
   Map<String, dynamic> toJson() => {
-        'company': company,
+        'name': name,
         'position': position,
-        'website': website,
+        'url': url,
         'startDate': startDate,
         'endDate': endDate,
         'summary': summary,
@@ -147,7 +160,7 @@ class Work {
 class Volunteer {
   String organization;
   String position;
-  String website = '';
+  String url = '';
   String startDate = '';
   String endDate = '';
   String summary = '';
@@ -160,7 +173,7 @@ class Volunteer {
         (json['highlights'] as List).map((e) => e.toString()).toList();
 
     return Volunteer(json['organization'], json['position'])
-      ..website = json['website']
+      ..url = json['url']
       ..startDate = json['startDate']
       ..endDate = json['endDate']
       ..summary = json['summary']
@@ -170,7 +183,7 @@ class Volunteer {
   Map<String, dynamic> toJson() => {
         'organization': organization,
         'position': position,
-        'website': website,
+        'url': url,
         'startDate': startDate,
         'endDate': endDate,
         'summary': summary,
@@ -182,6 +195,7 @@ class Education {
   String institution;
   String area;
   String studyType;
+  String url = '';
   String startDate = '';
   String endDate = '';
   String gpa = '';
@@ -194,6 +208,7 @@ class Education {
         (json['courses'] as List).map((e) => e.toString()).toList();
 
     return Education(json['institution'], json['area'], json['studyType'])
+      ..url = json['url']
       ..startDate = json['startDate']
       ..endDate = json['endDate']
       ..gpa = json['gpa']
@@ -202,6 +217,7 @@ class Education {
 
   Map<String, dynamic> toJson() => {
         'institution': institution,
+        'url': url,
         'area': area,
         'studyType': studyType,
         'startDate': startDate,
@@ -234,7 +250,7 @@ class Publication {
   String name;
   String publisher = '';
   String releaseDate = '';
-  String website = '';
+  String url = '';
   String summary = '';
 
   Publication(this.name);
@@ -243,7 +259,7 @@ class Publication {
     return Publication(json['name'])
       ..publisher = json['publisher']
       ..releaseDate = json['releaseDate']
-      ..website = json['website']
+      ..url = json['url']
       ..summary = json['summary'];
   }
 
@@ -251,7 +267,7 @@ class Publication {
         'name': name,
         'publisher': publisher,
         'releaseDate': releaseDate,
-        'website': website,
+        'url': url,
         'summary': summary
       };
 }
@@ -431,10 +447,10 @@ class _ResumeEditorState extends State<ResumeEditor> {
           ),
           const SizedBox(height: 16.0),
           TextField(
-            controller: TextEditingController(text: widget.resume.website),
-            onChanged: (value) => widget.resume.website = value,
+            controller: TextEditingController(text: widget.resume.url),
+            onChanged: (value) => widget.resume.url = value,
             decoration: const InputDecoration(
-              labelText: 'Website',
+              labelText: 'url',
               border: OutlineInputBorder(),
             ),
           ),
@@ -461,430 +477,232 @@ class _ResumeEditorState extends State<ResumeEditor> {
           const SizedBox(height: 16.0),
 
           // Profiles Box with ListView of Cards and "Add" Button
-          // Card click invokes edit dialog
-          Card(
-            child: Column(
-              children: [
-                ListTile(
-                  title: Text('Profiles'),
-                  trailing: IconButton(
-                    icon: Icon(Icons.add),
-                    onPressed: () async {
-                      final result = await showDialog(
-                        context: context,
-                        builder: (context) => ProfileEditor(),
-                      );
-                      if (result != null) {
-                        setState(() {
-                          widget.resume.profiles.add(result);
-                        });
-                      }
-                    },
-                  ),
-                ),
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: widget.resume.profiles.length,
-                  itemBuilder: (context, index) {
-                    final profile = widget.resume.profiles[index];
-                    return ListTile(
-                      title: Text(profile.network),
-                      subtitle: Text(profile.username),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.delete),
-                        onPressed: () {
-                          setState(() {
-                            widget.resume.profiles.removeAt(index);
-                          });
-                        },
-                      ),
-                      onTap: () async {
-                        final result = await showDialog(
-                          context: context,
-                          builder: (context) => ProfileEditor(profile: profile),
-                        );
-                        if (result != null) {
-                          setState(() {
-                            widget.resume.profiles[index] = result;
-                          });
-                        }
-                      },
-                    );
-                  },
-                )
-              ],
-            ),
+          TileListField<Profile>(
+            title: 'Profiles',
+            items: widget.resume.profiles,
+            dialogBuilder: (context, [Profile? profile]) {
+              return ProfileEditor(profile: profile);
+            },
+            itemBuilder: (context, profile) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(profile.network, style: const TextStyle(fontSize: 16)),
+                  Text(profile.username,
+                      style: const TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.normal)),
+                ],
+              );
+            },
           ),
           const SizedBox(height: 16.0),
 
           // Work Box with ListView of draggable Cards and "Add" Button
-          // Card click invokes edit dialog
-          Card(
-            child: Column(
-              children: [
-                ListTile(
-                  title: Text('Work'),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.add),
-                    onPressed: () async {
-                      final result = await showDialog(
-                        context: context,
-                        builder: (context) => WorkEditor(),
-                      );
-                      if (result != null) {
-                        setState(() {
-                          widget.resume.work.add(result);
-                        });
-                      }
-                    },
-                  ),
-                ),
-                ReorderableListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: widget.resume.work.length,
-                  itemBuilder: (context, index) {
-                    final work = widget.resume.work[index];
-                    return ListTile(
-                      key: ValueKey(work),
-                      title: Text(work.company),
-                      subtitle: Text(work.position),
-                      //  Edit/Delete menu on leading
-                      leading: PopupMenuButton(
-                        itemBuilder: (context) => [
-                          const PopupMenuItem(
-                            child: Text('Edit'),
-                            value: 'edit',
-                          ),
-                          const PopupMenuItem(
-                            child: Text('Delete'),
-                            value: 'delete',
-                          ),
-                        ],
-                        onSelected: (value) async {
-                          if (value == 'edit') {
-                            final result = await showDialog(
-                              context: context,
-                              builder: (context) => WorkEditor(work: work),
-                            );
-                            if (result != null) {
-                              setState(() {
-                                widget.resume.work[index] = result;
-                              });
-                            }
-                          } else if (value == 'delete') {
-                            setState(() {
-                              widget.resume.work.removeAt(index);
-                            });
-                          }
-                        },
-                      ),
-                      onTap: () async {
-                        final result = await showDialog(
-                          context: context,
-                          builder: (context) => WorkEditor(work: work),
-                        );
-                        if (result != null) {
-                          setState(() {
-                            widget.resume.work[index] = result;
-                          });
-                        }
-                      },
-                    );
-                  },
-                  onReorder: (oldIndex, newIndex) {
-                    setState(() {
-                      if (oldIndex < newIndex) {
-                        newIndex -= 1;
-                      }
-                      final work = widget.resume.work.removeAt(oldIndex);
-                      widget.resume.work.insert(newIndex, work);
-                    });
-                  },
-                )
-              ],
-            ),
+          TileListField<Work>(
+            title: 'Work',
+            items: widget.resume.work,
+            dialogBuilder: (context, [Work? work]) {
+              return WorkEditor(work: work);
+            },
+            itemBuilder: (context, work) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(work.name, style: const TextStyle(fontSize: 16)),
+                  Text(work.position,
+                      style: const TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.normal)),
+                ],
+              );
+            },
           ),
           const SizedBox(height: 16.0),
 
           // Volunteer Box with ListView of draggable Cards and "Add" Button
-          // Card click invokes edit dialog
-          Card(
-            child: Column(
-              children: [
-                ListTile(
-                  title: Text('Volunteer'),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.add),
-                    onPressed: () async {
-                      final result = await showDialog(
-                        context: context,
-                        builder: (context) => VolunteerEditor(),
-                      );
-                      if (result != null) {
-                        setState(() {
-                          widget.resume.volunteer.add(result);
-                        });
-                      }
-                    },
-                  ),
-                ),
-                ReorderableListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: widget.resume.volunteer.length,
-                  itemBuilder: (context, index) {
-                    final volunteer = widget.resume.volunteer[index];
-                    return ListTile(
-                      key: ValueKey(volunteer),
-                      title: Text(volunteer.organization),
-                      subtitle: Text(volunteer.position),
-                      //  Edit/Delete menu on leading
-                      leading: PopupMenuButton(
-                        itemBuilder: (context) => [
-                          const PopupMenuItem(
-                            child: Text('Edit'),
-                            value: 'edit',
-                          ),
-                          const PopupMenuItem(
-                            child: Text('Delete'),
-                            value: 'delete',
-                          ),
-                        ],
-                        onSelected: (value) async {
-                          if (value == 'edit') {
-                            final result = await showDialog(
-                              context: context,
-                              builder: (context) =>
-                                  VolunteerEditor(volunteer: volunteer),
-                            );
-                            if (result != null) {
-                              setState(() {
-                                widget.resume.volunteer[index] = result;
-                              });
-                            }
-                          } else if (value == 'delete') {
-                            setState(() {
-                              widget.resume.volunteer.removeAt(index);
-                            });
-                          }
-                        },
-                      ),
-                      onTap: () async {
-                        final result = await showDialog(
-                          context: context,
-                          builder: (context) =>
-                              VolunteerEditor(volunteer: volunteer),
-                        );
-                        if (result != null) {
-                          setState(() {
-                            widget.resume.volunteer[index] = result;
-                          });
-                        }
-                      },
-                    );
-                  },
-                  onReorder: (oldIndex, newIndex) {
-                    setState(() {
-                      if (oldIndex < newIndex) {
-                        newIndex -= 1;
-                      }
-                      final volunteer =
-                          widget.resume.volunteer.removeAt(oldIndex);
-                      widget.resume.volunteer.insert(newIndex, volunteer);
-                    });
-                  },
-                )
-              ],
-            ),
+          TileListField<Volunteer>(
+            title: 'Volunteer',
+            items: widget.resume.volunteer,
+            dialogBuilder: (context, [Volunteer? volunteer]) {
+              return VolunteerEditor(volunteer: volunteer);
+            },
+            itemBuilder: (context, volunteer) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(volunteer.organization,
+                      style: const TextStyle(fontSize: 16)),
+                  Text(volunteer.position,
+                      style: const TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.normal)),
+                ],
+              );
+            },
           ),
+          const SizedBox(height: 16.0),
 
           // Education Box with ListView of draggable Cards and "Add" Button
-          // Card click invokes edit dialog
-          Card(
-            child: Column(
-              children: [
-                ListTile(
-                  title: Text('Education'),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.add),
-                    onPressed: () async {
-                      final result = await showDialog(
-                        context: context,
-                        builder: (context) => EducationEditor(),
-                      );
-                      if (result != null) {
-                        setState(() {
-                          widget.resume.education.add(result);
-                        });
-                      }
-                    },
-                  ),
-                ),
-                ReorderableListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: widget.resume.education.length,
-                  itemBuilder: (context, index) {
-                    final education = widget.resume.education[index];
-                    return ListTile(
-                      key: ValueKey(education),
-                      title: Text(education.institution),
-                      subtitle: Text(education.studyType),
-                      //  Edit/Delete menu on leading
-                      leading: PopupMenuButton(
-                        itemBuilder: (context) => [
-                          const PopupMenuItem(
-                            child: Text('Edit'),
-                            value: 'edit',
-                          ),
-                          const PopupMenuItem(
-                            child: Text('Delete'),
-                            value: 'delete',
-                          ),
-                        ],
-                        onSelected: (value) async {
-                          if (value == 'edit') {
-                            final result = await showDialog(
-                              context: context,
-                              builder: (context) => EducationEditor(
-                                education: education,
-                              ),
-                            );
-                            if (result != null) {
-                              setState(() {
-                                widget.resume.education[index] = result;
-                              });
-                            }
-                          } else if (value == 'delete') {
-                            setState(() {
-                              widget.resume.education.removeAt(index);
-                            });
-                          }
-                        },
-                      ),
-                      onTap: () async {
-                        final result = await showDialog(
-                          context: context,
-                          builder: (context) => EducationEditor(
-                            education: education,
-                          ),
-                        );
-                        if (result != null) {
-                          setState(() {
-                            widget.resume.education[index] = result;
-                          });
-                        }
-                      },
-                    );
-                  },
-                  onReorder: (oldIndex, newIndex) {
-                    setState(() {
-                      if (oldIndex < newIndex) {
-                        newIndex -= 1;
-                      }
-                      final education =
-                          widget.resume.education.removeAt(oldIndex);
-                      widget.resume.education.insert(newIndex, education);
-                    });
-                  },
-                )
-              ],
-            ),
+          TileListField<Education>(
+            title: 'Education',
+            items: widget.resume.education,
+            dialogBuilder: (context, [Education? education]) {
+              return EducationEditor(education: education);
+            },
+            itemBuilder: (context, education) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(education.institution,
+                      style: const TextStyle(fontSize: 16)),
+                  Text(education.studyType,
+                      style: const TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.normal)),
+                ],
+              );
+            },
           ),
+          const SizedBox(height: 16.0),
 
           // Awards Box with ListView of draggable Cards and "Add" Button
-          // Card click invokes edit dialog
-          Card(
-            child: Column(
-              children: [
-                ListTile(
-                  title: Text('Awards'),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.add),
-                    onPressed: () async {
-                      final result = await showDialog(
-                        context: context,
-                        builder: (context) => AwardEditor(),
-                      );
-                      if (result != null) {
-                        setState(() {
-                          widget.resume.awards.add(result);
-                        });
-                      }
-                    },
-                  ),
-                ),
-                ReorderableListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: widget.resume.awards.length,
-                  itemBuilder: (context, index) {
-                    final award = widget.resume.awards[index];
-                    return ListTile(
-                      key: ValueKey(award),
-                      title: Text(award.title),
-                      subtitle: Text(award.awarder),
-                      //  Edit/Delete menu on leading
-                      leading: PopupMenuButton(
-                        itemBuilder: (context) => [
-                          const PopupMenuItem(
-                            child: Text('Edit'),
-                            value: 'edit',
-                          ),
-                          const PopupMenuItem(
-                            child: Text('Delete'),
-                            value: 'delete',
-                          ),
-                        ],
-                        onSelected: (value) async {
-                          if (value == 'edit') {
-                            final result = await showDialog(
-                              context: context,
-                              builder: (context) => AwardEditor(
-                                award: award,
-                              ),
-                            );
-                            if (result != null) {
-                              setState(() {
-                                widget.resume.awards[index] = result;
-                              });
-                            }
-                          } else if (value == 'delete') {
-                            setState(() {
-                              widget.resume.awards.removeAt(index);
-                            });
-                          }
-                        },
-                      ),
-                      onTap: () async {
-                        final result = await showDialog(
-                          context: context,
-                          builder: (context) => AwardEditor(
-                            award: award,
-                          ),
-                        );
-                        if (result != null) {
-                          setState(() {
-                            widget.resume.awards[index] = result;
-                          });
-                        }
-                      },
-                    );
-                  },
-                  onReorder: (oldIndex, newIndex) {
-                    setState(() {
-                      if (oldIndex < newIndex) {
-                        newIndex -= 1;
-                      }
-                      final award = widget.resume.awards.removeAt(oldIndex);
-                      widget.resume.awards.insert(newIndex, award);
-                    });
-                  },
-                )
-              ],
-            ),
+          TileListField<Award>(
+            title: 'Awards',
+            items: widget.resume.awards,
+            dialogBuilder: (context, [Award? award]) {
+              return AwardEditor(award: award);
+            },
+            itemBuilder: (context, award) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(award.title, style: const TextStyle(fontSize: 16)),
+                  Text(award.awarder,
+                      style: const TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.normal)),
+                ],
+              );
+            },
+          ),
+          const SizedBox(height: 16.0),
+
+          // Publications Box with ListView of draggable Cards and "Add" Button
+          TileListField<Publication>(
+            title: 'Publications',
+            items: widget.resume.publications,
+            dialogBuilder: (context, [Publication? publication]) {
+              return PublicationEditor(publication: publication);
+            },
+            itemBuilder: (context, publication) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(publication.name, style: const TextStyle(fontSize: 16)),
+                  Text(publication.publisher,
+                      style: const TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.normal)),
+                ],
+              );
+            },
+          ),
+          const SizedBox(height: 16.0),
+
+          // Skills Box with ListView of draggable Cards and "Add" Button
+          TileListField<Skill>(
+            title: 'Skills',
+            items: widget.resume.skills,
+            dialogBuilder: (context, [Skill? skill]) {
+              return SkillEditor(skill: skill);
+            },
+            itemBuilder: (context, skill) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(skill.name, style: const TextStyle(fontSize: 16)),
+                  Text(skill.level,
+                      style: const TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.normal)),
+                ],
+              );
+            },
+          ),
+          const SizedBox(height: 16.0),
+
+          // Languages Box with ListView of draggable Cards and "Add" Button
+          TileListField<Language>(
+            title: 'Languages',
+            items: widget.resume.languages,
+            dialogBuilder: (context, [Language? language]) {
+              return LanguageEditor(language: language);
+            },
+            itemBuilder: (context, language) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(language.language, style: const TextStyle(fontSize: 16)),
+                  Text(language.fluency,
+                      style: const TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.normal)),
+                ],
+              );
+            },
+          ),
+
+          // Interests Box with ListView of draggable Cards and "Add" Button
+          TileListField<Interest>(
+            title: 'Interests',
+            items: widget.resume.interests,
+            dialogBuilder: (context, [Interest? interest]) {
+              return InterestEditor(interest: interest);
+            },
+            itemBuilder: (context, interest) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(interest.name, style: const TextStyle(fontSize: 16)),
+                  Text(interest.keywords.join(', '),
+                      style: const TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.normal)),
+                ],
+              );
+            },
+          ),
+
+          // References Box with ListView of draggable Cards and "Add" Button
+          TileListField<Reference>(
+            title: 'References',
+            items: widget.resume.references,
+            dialogBuilder: (context, [Reference? reference]) {
+              return ReferenceEditor(reference: reference);
+            },
+            itemBuilder: (context, reference) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(reference.name, style: const TextStyle(fontSize: 16)),
+                  Text(reference.reference,
+                      style: const TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.normal)),
+                ],
+              );
+            },
+          ),
+
+          // Projects Box with ListView of draggable Cards and "Add" Button
+          TileListField<Project>(
+            title: 'Projects',
+            items: widget.resume.projects,
+            dialogBuilder: (context, [Project? project]) {
+              return ProjectEditor(project: project);
+            },
+            itemBuilder: (context, project) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(project.name, style: const TextStyle(fontSize: 16)),
+                  Text(project.description,
+                      style: const TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.normal)),
+                ],
+              );
+            },
           ),
         ],
       ),
@@ -943,25 +761,6 @@ class _ProfileEditorState extends State<ProfileEditor> {
               ),
             ),
             const SizedBox(height: 16.0),
-
-            // Save/Cancel Buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  child: const Text('Cancel'),
-                  onPressed: () => Navigator.pop(context),
-                ),
-                TextButton(
-                  child: const Text('Save'),
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      Navigator.pop(context, profile);
-                    }
-                  },
-                ),
-              ],
-            ),
           ],
         ),
       ),
@@ -994,8 +793,8 @@ class _WorkEditorState extends State<WorkEditor> {
           children: [
             const SizedBox(height: 16.0),
             TextFormField(
-              initialValue: work.company,
-              onChanged: (value) => work.company = value,
+              initialValue: work.name,
+              onChanged: (value) => work.name = value,
               decoration: const InputDecoration(
                 labelText: 'Company',
                 border: OutlineInputBorder(),
@@ -1012,10 +811,10 @@ class _WorkEditorState extends State<WorkEditor> {
             ),
             const SizedBox(height: 16.0),
             TextFormField(
-              initialValue: work.website,
-              onChanged: (value) => work.website = value,
+              initialValue: work.url,
+              onChanged: (value) => work.url = value,
               decoration: const InputDecoration(
-                labelText: 'Website',
+                labelText: 'URL',
                 border: OutlineInputBorder(),
               ),
             ),
@@ -1049,29 +848,8 @@ class _WorkEditorState extends State<WorkEditor> {
               ),
             ),
             const SizedBox(height: 16.0),
-
             StringListField(title: 'Highlights', items: work.highlights),
-
             const SizedBox(height: 16.0),
-
-            // Save/Cancel Buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  child: const Text('Cancel'),
-                  onPressed: () => Navigator.pop(context),
-                ),
-                TextButton(
-                  child: const Text('Save'),
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      Navigator.pop(context, work);
-                    }
-                  },
-                ),
-              ],
-            ),
           ],
         ),
       ),
@@ -1122,10 +900,10 @@ class _VolunteerEditorState extends State<VolunteerEditor> {
             ),
             const SizedBox(height: 16.0),
             TextFormField(
-              initialValue: volunteer.website,
-              onChanged: (value) => volunteer.website = value,
+              initialValue: volunteer.url,
+              onChanged: (value) => volunteer.url = value,
               decoration: const InputDecoration(
-                labelText: 'Website',
+                labelText: 'url',
                 border: OutlineInputBorder(),
               ),
             ),
@@ -1159,29 +937,8 @@ class _VolunteerEditorState extends State<VolunteerEditor> {
               ),
             ),
             const SizedBox(height: 16.0),
-
             StringListField(title: 'Highlights', items: volunteer.highlights),
-
             const SizedBox(height: 16.0),
-
-            // Save/Cancel Buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  child: const Text('Cancel'),
-                  onPressed: () => Navigator.pop(context),
-                ),
-                TextButton(
-                  child: const Text('Save'),
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      Navigator.pop(context, volunteer);
-                    }
-                  },
-                ),
-              ],
-            ),
           ],
         ),
       ),
@@ -1267,27 +1024,7 @@ class _EducationEditorState extends State<EducationEditor> {
               ),
             ),
             const SizedBox(height: 16.0),
-
             StringListField(title: 'Courses', items: education.courses),
-
-            // Save/Cancel Buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  child: const Text('Cancel'),
-                  onPressed: () => Navigator.pop(context),
-                ),
-                TextButton(
-                  child: const Text('Save'),
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      Navigator.pop(context, education);
-                    }
-                  },
-                ),
-              ],
-            ),
           ],
         ),
       ),
@@ -1357,25 +1094,361 @@ class _AwardEditorState extends State<AwardEditor> {
               ),
             ),
             const SizedBox(height: 16.0),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
-            // Save/Cancel Buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  child: const Text('Cancel'),
-                  onPressed: () => Navigator.pop(context),
-                ),
-                TextButton(
-                  child: const Text('Save'),
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      Navigator.pop(context, award);
-                    }
-                  },
-                ),
-              ],
+class PublicationEditor extends StatefulWidget {
+  final Publication? publication;
+
+  const PublicationEditor({Key? key, this.publication}) : super(key: key);
+
+  @override
+  _PublicationEditorState createState() => _PublicationEditorState();
+}
+
+class _PublicationEditorState extends State<PublicationEditor> {
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  Widget build(BuildContext context) {
+    final publication = widget.publication ?? Publication('');
+
+    return Dialog(
+      child: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(16.0),
+          shrinkWrap: true,
+          children: [
+            const SizedBox(height: 16.0),
+            TextFormField(
+              initialValue: publication.name,
+              onChanged: (value) => publication.name = value,
+              decoration: const InputDecoration(
+                labelText: 'Name',
+                border: OutlineInputBorder(),
+              ),
             ),
+            const SizedBox(height: 16.0),
+            TextFormField(
+              initialValue: publication.publisher,
+              onChanged: (value) => publication.publisher = value,
+              decoration: const InputDecoration(
+                labelText: 'Publisher',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16.0),
+            TextFormField(
+              initialValue: publication.releaseDate,
+              onChanged: (value) => publication.releaseDate = value,
+              decoration: const InputDecoration(
+                labelText: 'Release Date',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16.0),
+            TextFormField(
+              initialValue: publication.url,
+              onChanged: (value) => publication.url = value,
+              decoration: const InputDecoration(
+                labelText: 'url',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16.0),
+            TextFormField(
+              initialValue: publication.summary,
+              onChanged: (value) => publication.summary = value,
+              maxLines: 5,
+              maxLength: 300,
+              decoration: const InputDecoration(
+                labelText: 'Summary',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16.0),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class SkillEditor extends StatefulWidget {
+  final Skill? skill;
+
+  const SkillEditor({Key? key, this.skill}) : super(key: key);
+
+  @override
+  _SkillEditorState createState() => _SkillEditorState();
+}
+
+class _SkillEditorState extends State<SkillEditor> {
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  Widget build(BuildContext context) {
+    final skill = widget.skill ?? Skill('');
+
+    return Dialog(
+      child: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(16.0),
+          shrinkWrap: true,
+          children: [
+            const SizedBox(height: 16.0),
+            TextFormField(
+              initialValue: skill.name,
+              onChanged: (value) => skill.name = value,
+              decoration: const InputDecoration(
+                labelText: 'Name',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16.0),
+            TextFormField(
+              initialValue: skill.level,
+              onChanged: (value) => skill.level = value,
+              decoration: const InputDecoration(
+                labelText: 'Level',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16.0),
+            StringListField(title: 'Keywords', items: skill.keywords),
+            const SizedBox(height: 16.0),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class LanguageEditor extends StatefulWidget {
+  final Language? language;
+
+  const LanguageEditor({Key? key, this.language}) : super(key: key);
+
+  @override
+  _LanguageEditorState createState() => _LanguageEditorState();
+}
+
+class _LanguageEditorState extends State<LanguageEditor> {
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  Widget build(BuildContext context) {
+    final language = widget.language ?? Language('');
+
+    return Dialog(
+      child: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(16.0),
+          shrinkWrap: true,
+          children: [
+            const SizedBox(height: 16.0),
+            TextFormField(
+              initialValue: language.language,
+              onChanged: (value) => language.language = value,
+              decoration: const InputDecoration(
+                labelText: 'Language',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16.0),
+            TextFormField(
+              initialValue: language.fluency,
+              onChanged: (value) => language.fluency = value,
+              decoration: const InputDecoration(
+                labelText: 'Fluency',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16.0),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class InterestEditor extends StatefulWidget {
+  final Interest? interest;
+
+  const InterestEditor({Key? key, this.interest}) : super(key: key);
+
+  @override
+  _InterestEditorState createState() => _InterestEditorState();
+}
+
+class _InterestEditorState extends State<InterestEditor> {
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  Widget build(BuildContext context) {
+    final interest = widget.interest ?? Interest('');
+
+    return Dialog(
+      child: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(16.0),
+          shrinkWrap: true,
+          children: [
+            const SizedBox(height: 16.0),
+            TextFormField(
+              initialValue: interest.name,
+              onChanged: (value) => interest.name = value,
+              decoration: const InputDecoration(
+                labelText: 'Name',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16.0),
+            StringListField(title: 'Keywords', items: interest.keywords),
+            const SizedBox(height: 16.0),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ReferenceEditor extends StatefulWidget {
+  final Reference? reference;
+
+  const ReferenceEditor({Key? key, this.reference}) : super(key: key);
+
+  @override
+  _ReferenceEditorState createState() => _ReferenceEditorState();
+}
+
+class _ReferenceEditorState extends State<ReferenceEditor> {
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  Widget build(BuildContext context) {
+    final reference = widget.reference ?? Reference('', '');
+
+    return Dialog(
+      child: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(16.0),
+          shrinkWrap: true,
+          children: [
+            const SizedBox(height: 16.0),
+            TextFormField(
+              initialValue: reference.name,
+              onChanged: (value) => reference.name = value,
+              decoration: const InputDecoration(
+                labelText: 'Name',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16.0),
+            TextFormField(
+              initialValue: reference.reference,
+              onChanged: (value) => reference.reference = value,
+              maxLines: 5,
+              maxLength: 300,
+              decoration: const InputDecoration(
+                labelText: 'Reference',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16.0),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ProjectEditor extends StatefulWidget {
+  final Project? project;
+
+  const ProjectEditor({Key? key, this.project}) : super(key: key);
+
+  @override
+  _ProjectEditorState createState() => _ProjectEditorState();
+}
+
+class _ProjectEditorState extends State<ProjectEditor> {
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  Widget build(BuildContext context) {
+    final project = widget.project ?? Project('');
+
+    return Dialog(
+      child: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(16.0),
+          shrinkWrap: true,
+          children: [
+            const SizedBox(height: 16.0),
+            TextFormField(
+              initialValue: project.name,
+              onChanged: (value) => project.name = value,
+              decoration: const InputDecoration(
+                labelText: 'Name',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16.0),
+            TextFormField(
+              initialValue: project.description,
+              onChanged: (value) => project.description = value,
+              maxLines: 5,
+              maxLength: 300,
+              decoration: const InputDecoration(
+                labelText: 'Description',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16.0),
+            TextFormField(
+              initialValue: project.startDate,
+              onChanged: (value) => project.startDate = value,
+              decoration: const InputDecoration(
+                labelText: 'Start Date',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16.0),
+            TextFormField(
+              initialValue: project.endDate,
+              onChanged: (value) => project.endDate = value,
+              decoration: const InputDecoration(
+                labelText: 'End Date',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16.0),
+            TextFormField(
+              initialValue: project.url,
+              onChanged: (value) => project.url = value,
+              decoration: const InputDecoration(
+                labelText: 'URL',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16.0),
+            StringListField(title: 'Roles', items: project.roles),
+            const SizedBox(height: 16.0),
+            StringListField(title: 'Highlights', items: project.highlights),
+            const SizedBox(height: 16.0),
+            StringListField(title: 'Keywords', items: project.keywords),
+            const SizedBox(height: 16.0),
           ],
         ),
       ),
