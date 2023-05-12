@@ -1,4 +1,4 @@
-// Module for custom widgets
+// Module for common custom widgets shared across different modules
 
 import 'package:flutter/material.dart';
 

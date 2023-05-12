@@ -2,7 +2,7 @@ import 'package:uuid/uuid.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 
-import 'package:synapse/custom.dart';
+import 'package:synapse/common.dart';
 
 class Resume {
   // Class replicates jsonresume-based schema and offers constructor and json serialization
