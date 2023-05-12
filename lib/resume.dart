@@ -2,6 +2,8 @@ import 'package:uuid/uuid.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 
+import 'package:synapse/custom.dart';
+
 class Resume {
   // Class replicates jsonresume-based schema and offers constructor and json serialization
   String resumeId; // id of resume
@@ -19,6 +21,7 @@ class Resume {
   List<Work> work = [];
   List<Volunteer> volunteer = [];
   List<Education> education = [];
+  List<Award> awards = [];
   List<Skill> skills = [];
   List<Language> languages = [];
   List<Interest> interests = [];
@@ -38,6 +41,8 @@ class Resume {
         (json['volunteer'] as List).map((e) => Volunteer.fromJson(e)).toList();
     final List<Education> education =
         (json['education'] as List).map((e) => Education.fromJson(e)).toList();
+    final List<Award> awards =
+        (json['awards'] as List).map((e) => Award.fromJson(e)).toList();
     final List<Skill> skills =
         (json['skills'] as List).map((e) => Skill.fromJson(e)).toList();
     final List<Language> languages =
@@ -61,6 +66,7 @@ class Resume {
       ..work = work
       ..volunteer = volunteer
       ..education = education
+      ..awards = awards
       ..skills = skills
       ..languages = languages
       ..interests = interests
@@ -360,7 +366,7 @@ class Project {
       };
 }
 
-// Widgets
+// Editors
 class ResumeEditor extends StatefulWidget {
   final Resume resume;
   final Function(Resume) onSaved;
@@ -787,6 +793,99 @@ class _ResumeEditorState extends State<ResumeEditor> {
               ],
             ),
           ),
+
+          // Awards Box with ListView of draggable Cards and "Add" Button
+          // Card click invokes edit dialog
+          Card(
+            child: Column(
+              children: [
+                ListTile(
+                  title: Text('Awards'),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.add),
+                    onPressed: () async {
+                      final result = await showDialog(
+                        context: context,
+                        builder: (context) => AwardEditor(),
+                      );
+                      if (result != null) {
+                        setState(() {
+                          widget.resume.awards.add(result);
+                        });
+                      }
+                    },
+                  ),
+                ),
+                ReorderableListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: widget.resume.awards.length,
+                  itemBuilder: (context, index) {
+                    final award = widget.resume.awards[index];
+                    return ListTile(
+                      key: ValueKey(award),
+                      title: Text(award.title),
+                      subtitle: Text(award.awarder),
+                      //  Edit/Delete menu on leading
+                      leading: PopupMenuButton(
+                        itemBuilder: (context) => [
+                          const PopupMenuItem(
+                            child: Text('Edit'),
+                            value: 'edit',
+                          ),
+                          const PopupMenuItem(
+                            child: Text('Delete'),
+                            value: 'delete',
+                          ),
+                        ],
+                        onSelected: (value) async {
+                          if (value == 'edit') {
+                            final result = await showDialog(
+                              context: context,
+                              builder: (context) => AwardEditor(
+                                award: award,
+                              ),
+                            );
+                            if (result != null) {
+                              setState(() {
+                                widget.resume.awards[index] = result;
+                              });
+                            }
+                          } else if (value == 'delete') {
+                            setState(() {
+                              widget.resume.awards.removeAt(index);
+                            });
+                          }
+                        },
+                      ),
+                      onTap: () async {
+                        final result = await showDialog(
+                          context: context,
+                          builder: (context) => AwardEditor(
+                            award: award,
+                          ),
+                        );
+                        if (result != null) {
+                          setState(() {
+                            widget.resume.awards[index] = result;
+                          });
+                        }
+                      },
+                    );
+                  },
+                  onReorder: (oldIndex, newIndex) {
+                    setState(() {
+                      if (oldIndex < newIndex) {
+                        newIndex -= 1;
+                      }
+                      final award = widget.resume.awards.removeAt(oldIndex);
+                      widget.resume.awards.insert(newIndex, award);
+                    });
+                  },
+                )
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -951,51 +1050,7 @@ class _WorkEditorState extends State<WorkEditor> {
             ),
             const SizedBox(height: 16.0),
 
-            // Highlights List with Add IconButton
-            // Each highlight has a delete IconButton and can be edited inplace
-            // Highlights are added to the work.highlights list
-            Card(
-              child: Column(
-                children: [
-                  const ListTile(
-                    title: Text('Highlights'),
-                  ),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: work.highlights.length,
-                    itemBuilder: (context, index) {
-                      final highlight = work.highlights[index];
-                      return ListTile(
-                          title: TextField(
-                            controller: TextEditingController(text: highlight),
-                            onChanged: (value) =>
-                                work.highlights[index] = value,
-                            decoration: const InputDecoration(
-                              border: InputBorder.none,
-                            ),
-                          ),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.delete),
-                            onPressed: () {
-                              setState(() {
-                                work.highlights.removeAt(index);
-                              });
-                            },
-                          ));
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.add),
-                    onPressed: () {
-                      setState(() {
-                        work.highlights.add('');
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ),
+            StringListField(title: 'Highlights', items: work.highlights),
 
             const SizedBox(height: 16.0),
 
@@ -1105,51 +1160,7 @@ class _VolunteerEditorState extends State<VolunteerEditor> {
             ),
             const SizedBox(height: 16.0),
 
-            // Highlights List with Add IconButton
-            // Each highlight has a delete IconButton and can be edited inplace
-            // Highlights are added to the volunteer.highlights list
-            Card(
-              child: Column(
-                children: [
-                  const ListTile(
-                    title: Text('Highlights'),
-                  ),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: volunteer.highlights.length,
-                    itemBuilder: (context, index) {
-                      final highlight = volunteer.highlights[index];
-                      return ListTile(
-                          title: TextField(
-                            controller: TextEditingController(text: highlight),
-                            onChanged: (value) =>
-                                volunteer.highlights[index] = value,
-                            decoration: const InputDecoration(
-                              border: InputBorder.none,
-                            ),
-                          ),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.delete),
-                            onPressed: () {
-                              setState(() {
-                                volunteer.highlights.removeAt(index);
-                              });
-                            },
-                          ));
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.add),
-                    onPressed: () {
-                      setState(() {
-                        volunteer.highlights.add('');
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ),
+            StringListField(title: 'Highlights', items: volunteer.highlights),
 
             const SizedBox(height: 16.0),
 
@@ -1256,46 +1267,93 @@ class _EducationEditorState extends State<EducationEditor> {
               ),
             ),
             const SizedBox(height: 16.0),
-            Card(
-              child: Column(
-                children: [
-                  const ListTile(
-                    title: Text('Courses'),
-                  ),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: education.courses.length,
-                    itemBuilder: (context, index) {
-                      final course = education.courses[index];
-                      return ListTile(
-                          title: TextField(
-                            controller: TextEditingController(text: course),
-                            onChanged: (value) =>
-                                education.courses[index] = value,
-                            decoration: const InputDecoration(
-                              border: InputBorder.none,
-                            ),
-                          ),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.delete),
-                            onPressed: () {
-                              setState(() {
-                                education.courses.removeAt(index);
-                              });
-                            },
-                          ));
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.add),
-                    onPressed: () {
-                      setState(() {
-                        education.courses.add('');
-                      });
-                    },
-                  ),
-                ],
+
+            StringListField(title: 'Courses', items: education.courses),
+
+            // Save/Cancel Buttons
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  child: const Text('Cancel'),
+                  onPressed: () => Navigator.pop(context),
+                ),
+                TextButton(
+                  child: const Text('Save'),
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      Navigator.pop(context, education);
+                    }
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class AwardEditor extends StatefulWidget {
+  final Award? award;
+
+  const AwardEditor({Key? key, this.award}) : super(key: key);
+
+  @override
+  _AwardEditorState createState() => _AwardEditorState();
+}
+
+class _AwardEditorState extends State<AwardEditor> {
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  Widget build(BuildContext context) {
+    final award = widget.award ?? Award('');
+
+    return Dialog(
+      child: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(16.0),
+          shrinkWrap: true,
+          children: [
+            const SizedBox(height: 16.0),
+            TextFormField(
+              initialValue: award.title,
+              onChanged: (value) => award.title = value,
+              decoration: const InputDecoration(
+                labelText: 'Title',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16.0),
+            TextFormField(
+              initialValue: award.date,
+              onChanged: (value) => award.date = value,
+              decoration: const InputDecoration(
+                labelText: 'Date',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16.0),
+            TextFormField(
+              initialValue: award.awarder,
+              onChanged: (value) => award.awarder = value,
+              decoration: const InputDecoration(
+                labelText: 'Awarder',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16.0),
+            TextFormField(
+              initialValue: award.summary,
+              onChanged: (value) => award.summary = value,
+              maxLines: 5,
+              maxLength: 300,
+              decoration: const InputDecoration(
+                labelText: 'Summary',
+                border: OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 16.0),
@@ -1312,7 +1370,7 @@ class _EducationEditorState extends State<EducationEditor> {
                   child: const Text('Save'),
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      Navigator.pop(context, education);
+                      Navigator.pop(context, award);
                     }
                   },
                 ),
