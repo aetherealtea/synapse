@@ -1,5 +1,9 @@
 [
     {
+      "meta": {
+        "id": "1",
+        "name": "Resume 1"
+      },
     "basics": {
       "name": "John Doe",
       "label": "Programmer",

@@ -11,12 +11,12 @@ class Resume {
 
   String name = '';
   String label = '';
-  String picture = '';
+  String image = '';
   String email = '';
   String phone = '';
   String url = '';
   String summary = '';
-  String location = '';
+  Location location = Location();
   List<Profile> profiles = [];
   List<Work> work = [];
   List<Volunteer> volunteer = [];
@@ -39,6 +39,7 @@ class Resume {
     final List<Profile> profiles = (json['basics']['profiles'] as List)
         .map((e) => Profile.fromJson(e))
         .toList();
+    final Location location = Location.fromJson(json['basics']['location']);
     final List<Work> work =
         (json['work'] as List).map((e) => Work.fromJson(e)).toList();
     final List<Volunteer> volunteer =
@@ -65,13 +66,13 @@ class Resume {
         resumeId: json['meta']['id'], resumeName: json['meta']['name'])
       ..name = json['basics']['name']
       ..label = json['basics']['label']
-      ..picture = json['basics']['picture']
+      ..image = json['basics']['image']
       ..email = json['basics']['email']
       ..phone = json['basics']['phone']
       ..url = json['basics']['url']
       ..summary = json['basics']['summary']
-      ..location = json['basics']['location']
       ..profiles = profiles
+      ..location = location
       ..work = work
       ..volunteer = volunteer
       ..education = education
@@ -90,7 +91,7 @@ class Resume {
         'basics': {
           'name': name,
           'label': label,
-          'picture': picture,
+          'image': image,
           'email': email,
           'phone': phone,
           'url': url,
@@ -121,6 +122,33 @@ class Profile {
 
   Map<String, dynamic> toJson() =>
       {'network': network, 'username': username, 'url': url};
+}
+
+class Location {
+  String address = '';
+  String postalCode = '';
+  String city = '';
+  String countryCode = '';
+  String region = '';
+
+  Location();
+
+  factory Location.fromJson(Map<String, dynamic> json) {
+    return Location()
+      ..address = json['address']
+      ..postalCode = json['postalCode']
+      ..city = json['city']
+      ..countryCode = json['countryCode']
+      ..region = json['region'];
+  }
+
+  Map<String, dynamic> toJson() => {
+        'address': address,
+        'postalCode': postalCode,
+        'city': city,
+        'countryCode': countryCode,
+        'region': region
+      };
 }
 
 class Work {
@@ -198,7 +226,7 @@ class Education {
   String url = '';
   String startDate = '';
   String endDate = '';
-  String gpa = '';
+  String score = '';
   List<String> courses = [];
 
   Education(this.institution, this.area, this.studyType);
@@ -211,7 +239,7 @@ class Education {
       ..url = json['url']
       ..startDate = json['startDate']
       ..endDate = json['endDate']
-      ..gpa = json['gpa']
+      ..score = json['score']
       ..courses = courses;
   }
 
@@ -222,7 +250,7 @@ class Education {
         'studyType': studyType,
         'startDate': startDate,
         'endDate': endDate,
-        'gpa': gpa,
+        'score': score,
         'courses': courses
       };
 }
@@ -466,13 +494,34 @@ class _ResumeEditorState extends State<ResumeEditor> {
             ),
           ),
           const SizedBox(height: 16.0),
-          TextField(
-            controller: TextEditingController(text: widget.resume.location),
-            onChanged: (value) => widget.resume.location = value,
-            decoration: const InputDecoration(
-              labelText: 'Location',
-              border: OutlineInputBorder(),
-            ),
+          // Location: multiple fields
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller:
+                      TextEditingController(text: widget.resume.location.city),
+                  onChanged: (value) => widget.resume.location.city = value,
+                  decoration: const InputDecoration(
+                    labelText: 'City',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16.0),
+              Expanded(
+                child: TextField(
+                  controller: TextEditingController(
+                      text: widget.resume.location.countryCode),
+                  onChanged: (value) =>
+                      widget.resume.location.countryCode = value,
+                  decoration: const InputDecoration(
+                    labelText: 'Country Code',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 16.0),
 
@@ -1016,8 +1065,8 @@ class _EducationEditorState extends State<EducationEditor> {
             ),
             const SizedBox(height: 16.0),
             TextFormField(
-              initialValue: education.gpa,
-              onChanged: (value) => education.gpa = value,
+              initialValue: education.score,
+              onChanged: (value) => education.score = value,
               decoration: const InputDecoration(
                 labelText: 'GPA',
                 border: OutlineInputBorder(),
